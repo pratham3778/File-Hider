@@ -1,4 +1,4 @@
-# File-Hider
+# Java File Hider - Console Based Project
 
 # Overview
 
