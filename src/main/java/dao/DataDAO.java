@@ -3,17 +3,12 @@ package dao;
 import db.MyConnection;
 import model.Data;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.*;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataDAO {
+public class  DataDAO {
     public static List<Data> getAllFiles(String email) throws SQLException {
         Connection connection = MyConnection.getConnection();
         PreparedStatement ps = connection.prepareStatement("select * from data where email = ?");
@@ -43,5 +38,25 @@ public class DataDAO {
         fr.close();
         f.delete();
         return ans;
+    }
+    public static void unhide(int id) throws SQLException, IOException {
+        Connection connection = MyConnection.getConnection();
+        PreparedStatement ps = connection.prepareStatement("select path, bin_data from data where id = ?");
+        ps.setInt(1, id);
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        String path = rs.getString("path");
+        Clob c = rs.getClob("bin_data");
+
+        Reader r = c.getCharacterStream();
+        FileWriter fw = new FileWriter(path);
+        int i;
+        while ((i = r.read()) != -1) {
+            fw.write((char) i);
+        }
+        fw.close();
+        ps = connection.prepareStatement("delete from data where id = ?");
+        ps.executeUpdate();
+        System.out.println("Successfully Unhidden");
     }
 }
